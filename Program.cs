@@ -43,52 +43,38 @@ namespace FixMediaDate
         }
 
         /// <summary>
-        /// Parse US standard phone media file names (pictures and videos) and and tries to extract date
+        /// Tries to parse media file names (pictures and videos) and extract date and time
         /// from file name
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
+        /// <param name="fileName">file name to process</param>
+        /// <returns>Extracted DateTime, or DateTime.MinValue if fails</returns>
         public static DateTime ExtractDateFromFileName(string fileName)
         {
-            var strNewDate = string.Empty;
-            var dataParseStr = "yyyyMMddHHmmss";
-
-            // Lets try to parse date and time first where date&time information encoded like yyyyMMdd_HHmmss
-            var result = Regex.Match(fileName, @"^(.*)?([0-9]{4})([0-9]{2})([0-9]{2})(.*)([0-9]{2})([0-9]{2})([0-9]{2})");
-            if (result.Success && result.Groups.Count == 9)
-            {
-                strNewDate = $"{result.Groups[2].Value}{result.Groups[3].Value}{result.Groups[4].Value}{result.Groups[6]}{result.Groups[7]}{result.Groups[8]}";
-            }
-            else
-            {
-                // Now try to parse date&time encoding like yyyyMMdd_HH-mm-ss
-                result = Regex.Match(fileName, @"^(.*)?([0-9]{4})([0-9]{2})([0-9]{2})(.*)([0-9]{2})(.*)([0-9]{2})(.*)([0-9]{2})");
-                if (result.Success && result.Groups.Count == 11)
-                {
-                    strNewDate = $"{result.Groups[2].Value}{result.Groups[3].Value}{result.Groups[4].Value}{result.Groups[6]}{result.Groups[8]}{result.Groups[10]}";
-                }
-                // Try to parse date only
-                else
-                {
-                    result = Regex.Match(fileName, @"^(.*)?([0-9]{4})([0-9]{2})([0-9]{2})");
-                    if (result.Success && result.Groups.Count == 5)
-                    {
-                        strNewDate = $"{result.Groups[2].Value}{result.Groups[3].Value}{result.Groups[4].Value}";
-                        dataParseStr = "yyyyMMdd";
-                    }
-                }
-            }
-
             var newDate = DateTime.MinValue;
-            DateTime.TryParseExact(strNewDate, dataParseStr, enUS, DateTimeStyles.None, out newDate);
+            var match = Regex.Match(fileName, @"^(?:.*)?([0-9]{4})([0-9]{2})([0-9]{2})(?:.?)(([0-9]{2})(?:.?)([0-9]{2})(?:.?)([0-9]{2})|(?:))");
+            if (match.Success)
+            {
+                string strNewDate;
+                var groups = match.Groups.OfType<Group>().Where(g => !string.IsNullOrEmpty(g.Value)).ToList();
+                switch (groups.Count)
+                {
+                    case 8:
+                        strNewDate = $"{groups[1].Value}{groups[2].Value}{groups[3].Value}{groups[5]}{groups[6]}{groups[7]}";
+                        break;
+                    default:
+                        strNewDate = $"{groups[1].Value}{groups[2].Value}{groups[3].Value}";
+                        break;
+                }
+                DateTime.TryParseExact(strNewDate, (groups.Count == 8 ? "yyyyMMddHHmmss" : "yyyyMMdd"), enUS, DateTimeStyles.None, out newDate);
+            }
             return newDate;
         }
 
         /// <summary>
-        /// Sets EXIF date tags to specific date
+        /// Sets EXIF date tags to specific date and time (if not set)
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="date"></param>
+        /// <param name="fileName">file to process</param>
+        /// <param name="date">specific date and time</param>
         public static void SetExifDate(string fileName, DateTime date)
         {
             bool tagsModified = false;
@@ -150,8 +136,8 @@ namespace FixMediaDate
         /// <summary>
         /// Sets all file dates (creation, write & access) to the specific date
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="date"></param>
+        /// <param name="fileName">file to process</param>
+        /// <param name="date">specific date and time</param>
         public static void SetFileDates(string fileName, DateTime date)
         {
             if (!error)
