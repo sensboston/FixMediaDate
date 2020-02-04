@@ -51,21 +51,11 @@ namespace FixMediaDate
         public static DateTime ExtractDateFromFileName(string fileName)
         {
             var newDate = DateTime.MinValue;
-            var match = Regex.Match(fileName, @"^(?:.*)?([0-9]{4})([0-9]{2})([0-9]{2})(?:.?)(([0-9]{2})(?:.?)([0-9]{2})(?:.?)([0-9]{2})|(?:))");
+            var match = Regex.Match(fileName, @"(?:.*)?([0-9]{4})([0-9]{2})([0-9]{2})(?:.?)(([0-9]{2})(?:.?)([0-9]{2})(?:.?)([0-9]{2})|(?:))");
             if (match.Success)
             {
-                string strNewDate;
-                var groups = match.Groups.OfType<Group>().Where(g => !string.IsNullOrEmpty(g.Value)).ToList();
-                switch (groups.Count)
-                {
-                    case 8:
-                        strNewDate = $"{groups[1].Value}{groups[2].Value}{groups[3].Value}{groups[5]}{groups[6]}{groups[7]}";
-                        break;
-                    default:
-                        strNewDate = $"{groups[1].Value}{groups[2].Value}{groups[3].Value}";
-                        break;
-                }
-                DateTime.TryParseExact(strNewDate, (groups.Count == 8 ? "yyyyMMddHHmmss" : "yyyyMMdd"), enUS, DateTimeStyles.None, out newDate);
+                var strNewDate = $"{match.Groups[1].Value}{match.Groups[2].Value}{match.Groups[3].Value}{match.Groups[5].Value}{match.Groups[6].Value}{match.Groups[7].Value}";
+                DateTime.TryParseExact(strNewDate, strNewDate.Length == 8 ? "yyyyMMdd" : "yyyyMMddHHmmss", enUS, DateTimeStyles.None, out newDate);
             }
             return newDate;
         }
