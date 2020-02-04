@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("FixMediaDate")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Small console utility to restore EXIF and file date/time from file name")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("SeNSSoFT")]
 [assembly: AssemblyProduct("FixMediaDate")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2020, SeNSSoFT")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
