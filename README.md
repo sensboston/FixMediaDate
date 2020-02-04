@@ -15,6 +15,8 @@ This app is pretty simple (I'll show below how to fix WhatsApp mess):
 As an extra step, you may need to uninstall "Photos" app (or clear app's data) first, to get your pictures perfectly organized by dates.
 
 But, of course, you should clearly understood what are you doing! Source code is pretty clear an simple; please take a look before using.
-Please, note: current code is expecting US date and time format. To get it works with your locale (if differ), please fix the code and issue PR.
 
+**Please, note:** current code can process **US date and time format only**. If your locale is differ, please fix source code and issue PR.
+
+## DISCLAIMER
 **I'M PERSONALLY AND THE APP SHALL HAVE NO RESPONSIBILITY FOR ANY DAMAGE TO YOUR PHONE OR TABLET OR LOSS OF DATA THAT RESULTS FROM YOUR USE OF THE APP OR ITS CONTENT.**
