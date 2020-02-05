@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace FixMediaDate
 {
@@ -14,6 +15,7 @@ namespace FixMediaDate
         static readonly CultureInfo enUS = new CultureInfo("en-US");
         static bool error = false;
         static int filesCount = 0, errorsCount = 0, filesModified = 0;
+
         static void Main(string[] args)
         {
             var mediaPath = args.Length > 0 ? args[0] : AppDomain.CurrentDomain.BaseDirectory;
@@ -38,7 +40,7 @@ namespace FixMediaDate
                         }
                     }
                 }
-                Console.WriteLine($"{filesCount} files processed, {filesModified} files are modified, total {errorsCount} errors found");
+                Console.WriteLine($"{filesCount} files processed, {filesModified} files modified, {errorsCount} errors found");
             }
         }
 
@@ -61,11 +63,11 @@ namespace FixMediaDate
         }
 
         /// <summary>
-        /// Sets EXIF date tags to specific date and time (if not set)
+        /// Set EXIF tags to the specific date and time (if not set)
         /// </summary>
         /// <param name="fileName">file to process</param>
         /// <param name="date">specific date and time</param>
-        public static void SetExifDate(string fileName, DateTime date)
+        static void SetExifDate(string fileName, DateTime date)
         {
             bool tagsModified = false;
             var origExt = Path.GetExtension(fileName);
@@ -78,10 +80,9 @@ namespace FixMediaDate
                 var dateTakenProperty1 = propItems.Where(a => a.Id.ToString("x") == "9004").FirstOrDefault();
                 if (dateTakenProperty1 == null)
                 {
-                    dateTakenProperty1 = (PropertyItem)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(PropertyItem));
+                    dateTakenProperty1 = (PropertyItem)FormatterServices.GetUninitializedObject(typeof(PropertyItem));
                     dateTakenProperty1.Id = 0x9004;
                     dateTakenProperty1.Type = 2;
-
                     dateTakenProperty1.Value = Encoding.UTF8.GetBytes(date.ToString("yyyy:MM:dd HH:mm:ss") + '\0');
                     image.SetPropertyItem(dateTakenProperty1);
                     tagsModified = true;
@@ -91,8 +92,7 @@ namespace FixMediaDate
                 var dateTakenProperty2 = propItems.Where(a => a.Id.ToString("x") == "9003").FirstOrDefault();
                 if (dateTakenProperty2 == null)
                 {
-
-                    dateTakenProperty2 = (PropertyItem)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(PropertyItem));
+                    dateTakenProperty2 = (PropertyItem)FormatterServices.GetUninitializedObject(typeof(PropertyItem));
                     dateTakenProperty2.Id = 0x9003;
                     dateTakenProperty2.Type = 2;
                     dateTakenProperty2.Value = Encoding.UTF8.GetBytes(date.ToString("yyyy:MM:dd HH:mm:ss") + '\0');
@@ -124,11 +124,11 @@ namespace FixMediaDate
         }
 
         /// <summary>
-        /// Sets all file dates (creation, write & access) to the specific date
+        /// Sets all file dates (creation, write and access) to the specific date
         /// </summary>
         /// <param name="fileName">file to process</param>
         /// <param name="date">specific date and time</param>
-        public static void SetFileDates(string fileName, DateTime date)
+        static void SetFileDates(string fileName, DateTime date)
         {
             if (!error)
             {
@@ -138,7 +138,10 @@ namespace FixMediaDate
                     File.SetLastWriteTime(fileName, date);
                     File.SetLastAccessTime(fileName, date);
                 }
-                catch { error = true; }
+                catch 
+                { 
+                    error = true; 
+                }
             }
         }
     }
